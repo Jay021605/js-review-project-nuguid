@@ -1,0 +1,83 @@
+/* Core State Logic */
+.page { 
+    display: none; 
+    padding: 2rem;
+}
+
+.page.active { 
+    display: block; 
+}
+
+/* Auth Visibility Logic */
+body.not-authenticated .role-logged-in { display: none; }
+body.authenticated .role-logged-out { display: none; }
+
+/* Admin Visibility Logic */
+.role-admin { display: none; }
+body.is-admin .role-admin { display: block; }
+
+/* Basic Navigation Styling */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #333;
+    color: white;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+    margin: 0;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+}
+
+/* Simple Dropdown Styles */
+.dropdown { position: relative; }
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    display: block;
+}
+.dropdown:hover .dropdown-content { display: block; }
+.note-container {
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 1px solid #014175;
+    border-radius: 5px;
+    background-color: aqua;
+}
+#get-started-btn {
+    /* Padding: Top/Bottom 15px, Left/Right 40px */
+    padding: 15px 40px; 
+    
+    /* Increase font size so it doesn't look tiny inside a big button */
+    font-size: 1.2rem; 
+    
+    /* Optional: Make it look better */
+    cursor: pointer;
+    background-color: #44a3f1;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    
+}
+
+#get-started-btn:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}

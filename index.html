@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full-Stack App | [ Nuguid, Ronjay ]</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="not-authenticated">
+
+    <header>
+        <nav class="navbar">
+            <div class="brand">Full-Stack App ( Nuguid, Ronjay ) </div>
+            
+            <ul class="nav-links">
+                <li class="role-logged-out"><a href="#login">Login</a></li>
+                <li class="role-logged-out"><a href="#register">Register</a></li>
+
+                <li class="role-admin"><a href="#employees">Employees</a></li>
+                <li class="role-admin"><a href="#accounts">Accounts</a></li>
+                <li class="role-admin"><a href="#departments">Departments</a></li>
+
+                <li class="role-logged-in dropdown">
+                    <button class="dropbtn">User Menu ▼</button>
+                    <div class="dropdown-content">
+                        <a href="#profile">Profile</a>
+                        <a href="#requests">My Requests</a>
+                        <hr>
+                        <a href="#logout">Logout</a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main id="app-container">
+        <section id="home" class="page active">
+            <h2>Welcome To Full-Stack App</h2>
+            <p>A static prototype before backend integration. Stimulates: </p>
+            
+            <ul>
+                <li> Email registration + fake verifaction </li>
+                <li> Login with JWT- like token simulation </li>
+                <li> Role-based UI (Admin/User) </li>
+                <li> CRUD for Employees, Departments, Requests </li>
+        </section> 
+
+        <div class="note-container">
+            <p><strong>Note:</strong> All data is stored in localStorage. Refresh to reset.</p>
+        </div>
+        <br>
+        <button id="get-started-btn">Get Started ⟶</button> 
+
+        <section id="verify-email" class="page">
+            <h1>Verify Email</h1>
+            <p>Please check your inbox to verify your account.</p>
+        </section>
+
+        <section id="login" class="page">
+            <h1>Login</h1>
+            <p>Enter your credentials to access your profile.</p>
+        </section>
+
+        <section id="profile" class="page">
+            <h1>My Profile</h1>
+            <p>Manage your personal information.</p>
+        </section>
+
+        <section id="requests" class="page">
+            <h1>My Requests</h1>
+            <p>Track your submitted requests here.</p>
+        </section>
+
+        <section id="employees" class="page">
+            <h1>Employee Management</h1>
+            <p>Admin only: View and manage staff records.</p>
+        </section>
+
+        <section id="departments" class="page">
+            <h1>Department Management</h1>
+            <p>Admin only: Organize company departments.</p>
+        </section>
+
+        <section id="accounts" class="page">
+            <h1>Account Overviews</h1>
+            <p>Admin only: Financial and system account data.</p>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
