@@ -3,90 +3,312 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Full-Stack App | [ Nuguid, Ronjay ]</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Full-Stack App | Secure Edition</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --primary: #0f172a; --accent: #3b82f6; --admin-gold: #f59e0b; --bg: #f8fafc; }
+        body { background-color: var(--bg); font-family: 'Inter', sans-serif; color: #1e293b; }
+        .view-section { display: none; padding: 2rem 0; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .card { border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        .navbar { background: var(--primary) !important; border-bottom: 3px solid var(--accent); }
+        .role-badge { font-size: 0.65rem; padding: 3px 8px; border-radius: 50px; text-transform: uppercase; font-weight: 700; }
+        .role-admin { background-color: var(--admin-gold); color: #000; }
+        .role-user { background-color: var(--accent); color: #fff; }
+        .nav-role-display { display: none; }
+        .item-tag { background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; margin-right: 4px; display: inline-block; }
+        .validation-msg { font-size: 0.75rem; margin-top: 4px; display: none; }
+    </style>
 </head>
-<body class="not-authenticated">
+<body>
 
-    <header>
-        <nav class="navbar">
-            <div class="brand">Full-Stack App ( Nuguid, Ronjay ) </div>
-            
-            <ul class="nav-links">
-                <li class="role-logged-out"><a href="#login">Login</a></li>
-                <li class="role-logged-out"><a href="#register">Register</a></li>
-
-                <li class="role-admin"><a href="#employees">Employees</a></li>
-                <li class="role-admin"><a href="#accounts">Accounts</a></li>
-                <li class="role-admin"><a href="#departments">Departments</a></li>
-
-                <li class="role-logged-in dropdown">
-                    <button class="dropbtn">User Menu ▼</button>
-                    <div class="dropdown-content">
-                        <a href="#profile">Profile</a>
-                        <a href="#requests">My Requests</a>
-                        <hr>
-                        <a href="#logout">Logout</a>
-                    </div>
-                </li>
+<nav id="mainNav" class="navbar navbar-expand-lg navbar-dark sticky-top" style="display:none;">
+    <div class="container">
+        <a class="navbar-brand fw-bold" onclick="showView('user')">Full-Stack App 🌐</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav me-auto">
+                <li id="nav-dir" class="nav-item nav-role-display"><a class="nav-link text-info" onclick="showView('employees')">Directory</a></li>
+                <li id="nav-queue" class="nav-item nav-role-display"><a class="nav-link text-warning fw-bold" onclick="showView('admin')">Master Queue</a></li>
             </ul>
-        </nav>
-    </header>
-
-    <main id="app-container">
-        <section id="home" class="page active">
-            <h2>Welcome To Full-Stack App</h2>
-            <p>A static prototype before backend integration. Stimulates: </p>
-            
-            <ul>
-                <li> Email registration + fake verifaction </li>
-                <li> Login with JWT- like token simulation </li>
-                <li> Role-based UI (Admin/User) </li>
-                <li> CRUD for Employees, Departments, Requests </li>
-        </section> 
-
-        <div class="note-container">
-            <p><strong>Note:</strong> All data is stored in localStorage. Refresh to reset.</p>
+            <div class="d-flex align-items-center">
+                <span id="roleIndicator" class="role-badge me-2"></span>
+                <span class="text-light me-3 small" id="navUsername"></span>
+                <button class="btn btn-sm btn-outline-danger" onclick="logout()">Logout</button>
+            </div>
         </div>
-        <br>
-        <button id="get-started-btn">Get Started ⟶</button> 
+    </div>
+</nav>
 
-        <section id="verify-email" class="page">
-            <h1>Verify Email</h1>
-            <p>Please check your inbox to verify your account.</p>
-        </section>
+<div class="container">
+    <section id="authView" class="view-section" style="display: block;">
+        <div class="card mx-auto p-4 shadow-lg" style="max-width: 450px; margin-top: 50px;">
+            <h3 class="text-center fw-bold mb-4">Portal Access</h3>
+            <ul class="nav nav-pills nav-fill mb-4">
+                <li class="nav-item"><a class="nav-link active" id="t-login" onclick="toggleAuth('login')">Sign In</a></li>
+                <li class="nav-item"><a class="nav-link" id="t-reg" onclick="toggleAuth('register')">Register</a></li>
+            </ul>
+            <div id="loginFormArea">
+                <form onsubmit="handleLogin(event)">
+                    <input type="email" id="lEmail" class="form-control mb-3" placeholder="Email" required>
+                    <input type="password" id="lPass" class="form-control mb-3" placeholder="Password" required>
+                    <button class="btn btn-primary w-100 fw-bold">Login</button>
+                </form>
+            </div>
+            <div id="registerFormArea" style="display:none;">
+                <form onsubmit="handleRegister(event)">
+                    <div class="row g-2 mb-3">
+                        <div class="col">
+                            <input id="rFirst" class="form-control" placeholder="First Name" required>
+                            <div class="text-danger validation-msg" id="fError">Letters only (min 2).</div>
+                        </div>
+                        <div class="col">
+                            <input id="rLast" class="form-control" placeholder="Last Name" required>
+                            <div class="text-danger validation-msg" id="lError">Letters only (min 2).</div>
+                        </div>
+                    </div>
+                    <select id="rDept" class="form-select mb-3" required>
+                        <option value="IT Operations">IT Operations</option>
+                        <option value="Human Resources">Human Resources</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Marketing">Marketing</option>
+                    </select>
+                    <select id="rRole" class="form-select mb-3" required>
+                        <option value="user">User Role</option>
+                        <option value="admin">Admin Role</option>
+                    </select>
+                    <input type="email" id="rEmail" class="form-control mb-3" placeholder="Email" required>
+                    
+                    <input type="password" id="rPass" class="form-control" placeholder="Password" required>
+                    <div class="text-danger validation-msg mb-3" id="pError">
+                        Must have 8+ chars, 1 uppercase, 1 lowercase, 1 number.
+                    </div>
+                    
+                    <button class="btn btn-success w-100 fw-bold mt-3">Register Account</button>
+                </form>
+            </div>
+        </div>
+    </section>
 
-        <section id="login" class="page">
-            <h1>Login</h1>
-            <p>Enter your credentials to access your profile.</p>
-        </section>
+    <section id="userView" class="view-section">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card p-4 text-center mb-4">
+                    <h5 id="profName" class="fw-bold mb-0"></h5>
+                    <p id="profDept" class="text-muted small mb-2"></p>
+                    <div id="profRole"></div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="card p-4 mb-4">
+                    <h5 class="fw-bold">New Submission</h5>
+                    <input id="reqType" class="form-control mb-2" placeholder="Title/Category">
+                    <div id="itemsContainer"></div>
+                    <button class="btn btn-link btn-sm p-0 mb-3 text-decoration-none" onclick="addItem()">+ Add Item</button>
+                    <button class="btn btn-primary w-100 fw-bold" onclick="submitRequest()">Submit</button>
+                </div>
+                <div id="userRequestList"></div>
+            </div>
+        </div>
+    </section>
 
-        <section id="profile" class="page">
-            <h1>My Profile</h1>
-            <p>Manage your personal information.</p>
-        </section>
+    <section id="employeesView" class="view-section">
+        <div class="card p-4">
+            <h5 class="fw-bold mb-3">User Directory</h5>
+            <table class="table align-middle">
+                <thead class="table-light"><tr><th>User</th><th>Dept</th><th>Role</th><th>Actions</th></tr></thead>
+                <tbody id="employeesTable"></tbody>
+            </table>
+        </div>
+    </section>
 
-        <section id="requests" class="page">
-            <h1>My Requests</h1>
-            <p>Track your submitted requests here.</p>
-        </section>
+    <section id="adminView" class="view-section">
+        <div class="card p-4">
+            <h5 class="fw-bold mb-3">Global Request Queue</h5>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="table-light"><tr><th>Requester</th><th>Details</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody id="adminTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
 
-        <section id="employees" class="page">
-            <h1>Employee Management</h1>
-            <p>Admin only: View and manage staff records.</p>
-        </section>
+<script>
+const DB_NAME = "FullStackApp_V12_Secure";
+let db = { accounts: [], requests: [] };
+let currentUser = null;
 
-        <section id="departments" class="page">
-            <h1>Department Management</h1>
-            <p>Admin only: Organize company departments.</p>
-        </section>
+function loadDB() {
+    const data = localStorage.getItem(DB_NAME);
+    db = data ? JSON.parse(data) : { accounts: [], requests: [] };
+    if (!db.accounts.find(a => a.email === 'admin@example.com')) {
+        db.accounts.push({ first: "Master", last: "Admin", dept: "Management", email: "admin@example.com", password: "Password123!", role: "admin", verified: true });
+        saveDB();
+    }
+}
+function saveDB() { localStorage.setItem(DB_NAME, JSON.stringify(db)); }
 
-        <section id="accounts" class="page">
-            <h1>Account Overviews</h1>
-            <p>Admin only: Financial and system account data.</p>
-        </section>
-    </main>
+function toggleAuth(m) {
+    document.getElementById('loginFormArea').style.display = m === 'login' ? 'block' : 'none';
+    document.getElementById('registerFormArea').style.display = m === 'register' ? 'block' : 'none';
+    document.getElementById('t-login').classList.toggle('active', m === 'login');
+    document.getElementById('t-reg').classList.toggle('active', m === 'register');
+}
 
-    <script src="app.js"></script>
+/* --- THE FIX: STRICT NAME & PASSWORD VALIDATION --- */
+function handleRegister(e) {
+    e.preventDefault();
+    
+    const nameRegex = /^[A-Za-z]{2,}$/;
+    // Password Regex: Min 8 chars, 1 upper, 1 lower, 1 number
+    const passRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+    
+    const firstName = rFirst.value.trim();
+    const lastName = rLast.value.trim();
+    const password = rPass.value;
+
+    let hasError = false;
+    
+    // Name Checks
+    if(!nameRegex.test(firstName)) { document.getElementById('fError').style.display = 'block'; hasError = true; } 
+    else { document.getElementById('fError').style.display = 'none'; }
+
+    if(!nameRegex.test(lastName)) { document.getElementById('lError').style.display = 'block'; hasError = true; } 
+    else { document.getElementById('lError').style.display = 'none'; }
+
+    // Password Check
+    if(!passRegex.test(password)) { document.getElementById('pError').style.display = 'block'; hasError = true; } 
+    else { document.getElementById('pError').style.display = 'none'; }
+
+    if(hasError) return;
+
+    if(db.accounts.find(a => a.email === rEmail.value)) return alert("Email already exists.");
+    
+    db.accounts.push({ first: firstName, last: lastName, dept: rDept.value, email: rEmail.value, password: password, role: rRole.value, verified: false });
+    saveDB(); 
+    alert("Account registered. Awaiting Admin verification."); 
+    toggleAuth('login');
+}
+
+function handleLogin(e) {
+    e.preventDefault();
+    const u = db.accounts.find(a => a.email === lEmail.value && a.password === lPass.value);
+    if(u && u.verified) { currentUser = u; showView('user'); } 
+    else { alert(u ? "Pending verification." : "Login failed."); }
+}
+
+function logout() { currentUser = null; showView('auth'); }
+
+function showView(n) {
+    document.querySelectorAll('.view-section').forEach(s => s.style.display = 'none');
+    document.getElementById(n + 'View').style.display = 'block';
+    if (n === 'auth') { document.getElementById('mainNav').style.display = 'none'; } 
+    else {
+        document.getElementById('mainNav').style.display = 'flex';
+        document.getElementById('navUsername').innerText = currentUser.first;
+        document.getElementById('roleIndicator').innerText = currentUser.role;
+        document.getElementById('roleIndicator').className = `role-badge me-2 role-${currentUser.role}`;
+        
+        const isAdmin = currentUser.role === 'admin';
+        document.getElementById('nav-dir').style.display = isAdmin ? 'block' : 'none';
+        document.getElementById('nav-queue').style.display = isAdmin ? 'block' : 'none';
+
+        if(n === 'user') renderUserDash();
+        if(n === 'admin') renderAdminPanel();
+        if(n === 'employees') renderEmployees();
+    }
+}
+
+function updateStatus(id, s) {
+    const r = db.requests.find(req => req.id.toString() === id.toString());
+    if(!r) return;
+    if(s === 'Rejected') {
+        const msg = prompt("Reason for rejection:");
+        if(msg === null) return;
+        r.reason = msg;
+    }
+    r.status = s;
+    saveDB(); renderAdminPanel();
+}
+
+function verifyUser(email) {
+    db.accounts.find(a => a.email === email).verified = true;
+    saveDB(); renderEmployees();
+}
+
+function removeUser(email) {
+    if (email === currentUser.email) return alert("You cannot delete yourself.");
+    if (confirm(`Delete ${email} permanently?`)) {
+        db.accounts = db.accounts.filter(a => a.email !== email);
+        db.requests = db.requests.filter(r => r.email !== email);
+        saveDB(); renderEmployees();
+    }
+}
+
+function renderAdminPanel() {
+    document.getElementById('adminTableBody').innerHTML = db.requests.map(r => {
+        const u = db.accounts.find(a => a.email === r.email);
+        return `<tr>
+            <td><b>${u?u.first+' '+u.last:'User'}</b><br><span class="role-badge role-${u?u.role:'user'}">${u?u.role:'user'}</span></td>
+            <td><small>${r.type}</small></td>
+            <td>${r.items.map(i => `<span class="item-tag">${i.name} (x${i.qty})</span>`).join('')}</td>
+            <td><span class="badge ${r.status==='Approved'?'bg-success':r.status==='Rejected'?'bg-danger':'bg-warning text-dark'}">${r.status}</span></td>
+            <td>
+                <button class="btn btn-sm btn-success" onclick="updateStatus('${r.id}', 'Approved')">✓</button>
+                <button class="btn btn-sm btn-danger" onclick="updateStatus('${r.id}', 'Rejected')">✕</button>
+            </td>
+        </tr>`;
+    }).join("");
+}
+
+function renderEmployees() {
+    document.getElementById('employeesTable').innerHTML = db.accounts.map(a => `
+        <tr>
+            <td><b>${a.first} ${a.last}</b><br><small>${a.email}</small></td>
+            <td>${a.dept}</td>
+            <td><span class="role-badge role-${a.role}">${a.role}</span></td>
+            <td>
+                <div class="btn-group">
+                    ${!a.verified ? `<button class="btn btn-sm btn-primary" onclick="verifyUser('${a.email}')">Verify</button>` : '<span class="text-success small p-1">Verified</span>'}
+                    <button class="btn btn-sm btn-outline-danger" onclick="removeUser('${a.email}')">Del</button>
+                </div>
+            </td>
+        </tr>`).join("");
+}
+
+function renderUserDash() {
+    document.getElementById('profName').innerText = `${currentUser.first} ${currentUser.last}`;
+    document.getElementById('profDept').innerText = currentUser.dept;
+    document.getElementById('profRole').innerHTML = `<span class="role-badge role-${currentUser.role}">${currentUser.role}</span>`;
+    
+    const my = db.requests.filter(r => r.email === currentUser.email);
+    document.getElementById('userRequestList').innerHTML = my.map(r => `
+        <div class="card p-3 mb-2 border-start border-4 ${r.status==='Approved'?'border-success':r.status==='Rejected'?'border-danger':'border-primary'}">
+            <div class="d-flex justify-content-between"><b>${r.type}</b> <span>${r.status}</span></div>
+            <div class="mt-2">${r.items.map(i => `<span class="item-tag">${i.name} (x${i.qty})</span>`).join('')}</div>
+            ${r.reason ? `<div class="text-danger small mt-2"><b>Note:</b> ${r.reason}</div>` : ''}
+        </div>`).join("");
+    if(!itemsContainer.innerHTML) addItem();
+}
+
+function addItem() {
+    const div = document.createElement("div"); div.className = "d-flex gap-2 mb-2";
+    div.innerHTML = `<input class="form-control iName" placeholder="Item"><input type="number" class="form-control iQty" value="1" style="width:70px"><button class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">×</button>`;
+    itemsContainer.appendChild(div);
+}
+
+function submitRequest() {
+    const its = Array.from(document.querySelectorAll('#itemsContainer div')).map(row => ({ name: row.querySelector('.iName').value, qty: row.querySelector('.iQty').value })).filter(i => i.name);
+    if(!reqType.value || its.length === 0) return alert("Missing details.");
+    db.requests.unshift({ id: Date.now().toString(), type: reqType.value, items: its, email: currentUser.email, status: "Pending" });
+    saveDB(); renderUserDash();
+    document.getElementById('reqType').value = "";
+    document.getElementById('itemsContainer').innerHTML = "";
+    addItem();
+}
+
+loadDB();
+</script>
 </body>
 </html>
